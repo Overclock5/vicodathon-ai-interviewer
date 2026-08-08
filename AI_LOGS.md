@@ -102,3 +102,24 @@ Selected **Next.js + FastAPI** as the core stack. The interview engine will comb
 
 **Result:**
 The project moved from an initial concept into a structured implementation-ready architecture, with the frontend, backend, interview engine, scoring system, and signature AI features clearly separated.
+
+
+## Step 2A - Python package initialization fix
+
+**Goal:**  
+Resolve backend startup import error.
+
+**Prompt given to AI:**  
+The backend failed to start and showed `NameError: name 'undefined' is not defined` inside `backend/app/__init__.py`.
+
+**AI response summary:**  
+The AI identified that `__init__.py` should be empty and that accidental text `undefined` was being executed as Python code.
+
+**Implementation outcome:**  
+Cleaned `backend/app/__init__.py` and verified package initialization files should remain empty unless intentionally used.
+
+**Files changed:**  
+- backend/app/__init__.py
+
+**Notes / decisions:**  
+Kept package init files empty for a clean FastAPI project structure.
