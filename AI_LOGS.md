@@ -123,3 +123,46 @@ Cleaned `backend/app/__init__.py` and verified package initialization files shou
 
 **Notes / decisions:**  
 Kept package init files empty for a clean FastAPI project structure.
+
+## Session 3 - API contract, session flow, and deterministic interview engine
+
+**Goal:**  
+Implement the official hackathon API contract and create a working backend interview flow before adding LLM-based intelligence.
+
+**Prompt given to AI:**  
+Read the technical specification, curriculum JSON, and candidates JSON. Design the correct backend structure for `/api/interview` with session-based interview state, adaptive follow-ups, and final structured feedback.
+
+**AI response summary:**  
+The AI analyzed the official spec and recommended building:
+- a single `POST /api/interview` endpoint
+- Pydantic schemas matching candidate/request/response structure
+- curriculum and candidate data loaders
+- an in-memory session store using `sessionId`
+- a deterministic interview planner selecting 4 topics and 8 questions
+- adaptive follow-up generation based on answer quality
+- structured final feedback with `summary`, `strengths`, `gaps`, and `next`
+
+**Implementation outcome:**  
+Built the real backend interview contract with:
+- request/response schemas
+- curriculum and candidates data ingestion
+- topic queue planning from candidate missions
+- answer evaluation heuristics
+- session-based interview progression
+- final feedback generation
+
+**Files changed:**  
+- backend/app/models/schemas.py
+- backend/app/services/curriculum_loader.py
+- backend/app/services/candidate_loader.py
+- backend/app/services/interview_planner.py
+- backend/app/services/evaluator.py
+- backend/app/services/session_store.py
+- backend/app/services/recommendation.py
+- backend/app/routers/interview.py
+- backend/app/main.py
+- backend/app/data/curriculum.json
+- backend/app/data/candidates.json
+
+**Notes / decisions:**  
+Used a deterministic planner first to guarantee API stability and testability. Deferred LLM-based natural phrasing and richer evaluation to the next step.
