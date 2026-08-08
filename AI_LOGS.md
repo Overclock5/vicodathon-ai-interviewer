@@ -284,3 +284,31 @@ Successfully deployed the backend on Render at a public URL and prepared the fro
 
 **Notes / decisions:**  
 Used Render Web Service instead of Blueprint. Fixed Linux case-sensitivity issues in backend folder names during deployment.
+
+## Session 6 - Judge-facing polish with live competency map and enhanced report
+
+**Goal:**  
+Make the product’s three signature features visible in the UI: Dynamic Interview Path, Interview Mind Map, and Hiring Recommendation.
+
+**Prompt given to AI:**  
+Design the next polish step for the AI Interview Agent. Keep the API contract intact, but expose useful interview metadata so the frontend can show live progress, competency tracking, and a stronger final report.
+
+**AI response summary:**  
+The AI recommended:
+- extending the response model with optional metadata
+- returning current question, covered days, competency map, recommendation label, and score breakdown
+- rendering a live competency panel during the interview
+- upgrading the final report with score cards, recommendation badge, curriculum coverage, and transcript snapshot
+
+**Implementation outcome:**  
+Added live metadata to the interview flow and upgraded the UI to make the system’s adaptive behavior and final evaluation visibly stronger for judges.
+
+**Files changed:**  
+- Backend/app/models/schemas.py
+- Backend/app/routers/interview.py
+- Frontend/lib/types.ts
+- Frontend/app/interview/page.tsx
+- Frontend/app/report/page.tsx
+
+**Notes / decisions:**  
+Used optional metadata so the original hackathon API contract remains compatible while allowing a richer frontend experience.

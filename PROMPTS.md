@@ -108,3 +108,4 @@ Built the main frontend flow for the product:
 - final report screen
 - backend integration using environment variables
 This made the project transition from a backend prototype into a usable demo product.
+
