@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { CandidateProfile, Feedback } from "../../lib/types";
+import type {
+  CandidateProfile,
+  Feedback,
+  InterviewMeta,
+} from "../../lib/types";
 
 type ReportPayload = {
   candidate: CandidateProfile | null;
   feedback: Feedback;
   transcript: { role: "assistant" | "user"; text: string }[];
+  meta?: InterviewMeta | null;
 };
 
 export default function ReportPage() {
@@ -20,6 +26,12 @@ export default function ReportPage() {
     const parsed = JSON.parse(raw) as ReportPayload;
     setData(parsed);
   }, []);
+
+  const sortedCompetencies = useMemo(() => {
+    return [...(data?.meta?.competencyMap ?? [])].sort(
+      (a, b) => b.score - a.score
+    );
+  }, [data]);
 
   if (!data) {
     return (
@@ -43,18 +55,64 @@ export default function ReportPage() {
     <main style={pageStyle}>
       <div style={containerStyle}>
         <div style={{ marginBottom: 24 }}>
-          <p style={{ color: "#67e8f9", textTransform: "uppercase", letterSpacing: "0.18em", fontSize: 12 }}>
+          <p
+            style={{
+              color: "#67e8f9",
+              textTransform: "uppercase",
+              letterSpacing: "0.18em",
+              fontSize: 12,
+            }}
+          >
             Final Interview Report
           </p>
-          <h1 style={{ fontSize: 42, margin: "12px 0 8px 0" }}>
-            {data.candidate?.member.name}
-          </h1>
-          <p style={{ color: "#d4d4d8", margin: 0 }}>
-            {data.candidate?.member.jobRole} • {data.candidate?.member.education}
-          </p>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 16,
+              flexWrap: "wrap",
+            }}
+          >
+            <div>
+              <h1 style={{ fontSize: 42, margin: "12px 0 8px 0" }}>
+                {data.candidate?.member.name}
+              </h1>
+              <p style={{ color: "#d4d4d8", margin: 0 }}>
+                {data.candidate?.member.jobRole} • {data.candidate?.member.education}
+              </p>
+            </div>
+
+            {data.meta?.recommendation ? (
+              <span style={recommendationBadgeStyle}>
+                {data.meta.recommendation}
+              </span>
+            ) : null}
+          </div>
         </div>
 
-        <div style={{ display: "grid", gap: 20, gridTemplateColumns: "1.2fr 1fr" }}>
+        {data.meta?.scoreBreakdown ? (
+          <div style={metricGridStyle}>
+            <ScoreCard
+              title="Technical"
+              value={data.meta.scoreBreakdown.technical}
+              color="#93c5fd"
+            />
+            <ScoreCard
+              title="Communication"
+              value={data.meta.scoreBreakdown.communication}
+              color="#86efac"
+            />
+            <ScoreCard
+              title="Reasoning"
+              value={data.meta.scoreBreakdown.reasoning}
+              color="#fde68a"
+            />
+          </div>
+        ) : null}
+
+        <div style={{ display: "grid", gap: 20, gridTemplateColumns: "1.2fr 1fr", marginTop: 20 }}>
           <section style={panelStyle}>
             <h2 style={sectionTitleStyle}>Summary</h2>
             <p style={{ color: "#e4e4e7", lineHeight: 1.7 }}>
@@ -79,19 +137,63 @@ export default function ReportPage() {
 
           <section style={{ display: "grid", gap: 20 }}>
             <div style={panelStyle}>
-              <h2 style={sectionTitleStyle}>Signature Features</h2>
-              <FeatureMiniCard
-                title="Dynamic Interview Path"
-                text="The interview adapted across multiple curriculum topics through session-based follow-ups."
-              />
-              <FeatureMiniCard
-                title="Interview Mind Map"
-                text="The engine tracked evolving competency signals from the candidate’s responses."
-              />
-              <FeatureMiniCard
-                title="Hiring Recommendation"
-                text="The final feedback summarizes strengths, gaps, and next actions in a recruiter-friendly format."
-              />
+              <h2 style={sectionTitleStyle}>Interview Mind Map</h2>
+
+              <div style={{ display: "grid", gap: 12 }}>
+                {sortedCompetencies.map((node) => (
+                  <div key={node.topic}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        marginBottom: 6,
+                      }}
+                    >
+                      <span style={{ fontWeight: 700 }}>{node.topic}</span>
+                      <span
+                        style={{
+                          color:
+                            node.level === "strong"
+                              ? "#86efac"
+                              : node.level === "average"
+                              ? "#fde68a"
+                              : "#fca5a5",
+                          textTransform: "capitalize",
+                          fontSize: 13,
+                        }}
+                      >
+                        {node.level} • {node.score}%
+                      </span>
+                    </div>
+                    <div style={trackStyle}>
+                      <div
+                        style={{
+                          ...fillStyle,
+                          width: `${node.score}%`,
+                          background:
+                            node.level === "strong"
+                              ? "#16a34a"
+                              : node.level === "average"
+                              ? "#ca8a04"
+                              : "#dc2626",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={panelStyle}>
+              <h2 style={sectionTitleStyle}>Covered Curriculum Days</h2>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                {(data.meta?.coveredDays ?? []).map((day) => (
+                  <span key={day} style={dayBadgeStyle}>
+                    Day {day}
+                  </span>
+                ))}
+              </div>
             </div>
 
             <div style={panelStyle}>
@@ -107,6 +209,42 @@ export default function ReportPage() {
             </div>
           </section>
         </div>
+
+        <section style={{ ...panelStyle, marginTop: 20 }}>
+          <h2 style={sectionTitleStyle}>Transcript Snapshot</h2>
+          <div style={{ display: "grid", gap: 12 }}>
+            {data.transcript.slice(0, 8).map((message, index) => (
+              <div
+                key={index}
+                style={{
+                  background: message.role === "user" ? "#0f766e22" : "#18181b",
+                  border:
+                    message.role === "user"
+                      ? "1px solid #14b8a6"
+                      : "1px solid #27272a",
+                  borderRadius: 12,
+                  padding: 14,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: message.role === "user" ? "#99f6e4" : "#a1a1aa",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    marginBottom: 6,
+                    fontWeight: 700,
+                  }}
+                >
+                  {message.role === "user" ? "Candidate" : "Interviewer"}
+                </div>
+                <div style={{ color: "#e4e4e7", lineHeight: 1.6 }}>
+                  {message.text}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );
@@ -124,54 +262,56 @@ function BulletList({ items, color }: { items: string[]; color: string }) {
   );
 }
 
-function FeatureMiniCard({ title, text }: { title: string; text: string }) {
+function ScoreCard({
+  title,
+  value,
+  color,
+}: {
+  title: string;
+  value: number;
+  color: string;
+}) {
   return (
-    <div
-      style={{
-        background: "#18181b",
-        border: "1px solid #27272a",
-        borderRadius: 12,
-        padding: 14,
-        marginTop: 12,
-      }}
-    >
-      <div style={{ fontWeight: 700 }}>{title}</div>
-      <div style={{ color: "#d4d4d8", marginTop: 6, lineHeight: 1.5 }}>{text}</div>
+    <div style={scoreCardStyle}>
+      <div style={{ color: "#a1a1aa", fontSize: 13 }}>{title}</div>
+      <div style={{ fontSize: 32, fontWeight: 800, marginTop: 6, color }}>
+        {value}/5
+      </div>
     </div>
   );
 }
 
-const pageStyle: React.CSSProperties = {
+const pageStyle: CSSProperties = {
   minHeight: "100vh",
   background: "#050505",
   color: "#ffffff",
   padding: "28px 18px",
 };
 
-const containerStyle: React.CSSProperties = {
-  maxWidth: 1200,
+const containerStyle: CSSProperties = {
+  maxWidth: 1280,
   margin: "0 auto",
 };
 
-const panelStyle: React.CSSProperties = {
+const panelStyle: CSSProperties = {
   background: "#111111",
   border: "1px solid #27272a",
   borderRadius: 18,
   padding: 22,
 };
 
-const sectionTitleStyle: React.CSSProperties = {
+const sectionTitleStyle: CSSProperties = {
   marginTop: 0,
   marginBottom: 14,
   fontSize: 28,
 };
 
-const subTitleStyle: React.CSSProperties = {
+const subTitleStyle: CSSProperties = {
   marginBottom: 0,
   fontSize: 20,
 };
 
-const buttonLinkStyle: React.CSSProperties = {
+const buttonLinkStyle: CSSProperties = {
   display: "inline-block",
   background: "#0891b2",
   color: "#fff",
@@ -181,7 +321,7 @@ const buttonLinkStyle: React.CSSProperties = {
   fontWeight: 700,
 };
 
-const secondaryLinkStyle: React.CSSProperties = {
+const secondaryLinkStyle: CSSProperties = {
   display: "inline-block",
   background: "#18181b",
   color: "#fff",
@@ -190,4 +330,48 @@ const secondaryLinkStyle: React.CSSProperties = {
   borderRadius: 12,
   fontWeight: 700,
   border: "1px solid #27272a",
+};
+
+const metricGridStyle: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+  gap: 16,
+};
+
+const scoreCardStyle: CSSProperties = {
+  background: "#111111",
+  border: "1px solid #27272a",
+  borderRadius: 18,
+  padding: 20,
+};
+
+const recommendationBadgeStyle: CSSProperties = {
+  background: "#082f49",
+  color: "#bae6fd",
+  border: "1px solid #0ea5e9",
+  borderRadius: 999,
+  padding: "10px 16px",
+  fontWeight: 800,
+};
+
+const dayBadgeStyle: CSSProperties = {
+  background: "#18181b",
+  color: "#e4e4e7",
+  border: "1px solid #3f3f46",
+  borderRadius: 999,
+  padding: "8px 12px",
+  fontSize: 13,
+};
+
+const trackStyle: CSSProperties = {
+  width: "100%",
+  height: 10,
+  background: "#27272a",
+  borderRadius: 999,
+  overflow: "hidden",
+};
+
+const fillStyle: CSSProperties = {
+  height: "100%",
+  borderRadius: 999,
 };

@@ -1,6 +1,14 @@
+from statistics import mean
+
 from fastapi import APIRouter, HTTPException
 
-from app.models.schemas import InterviewRequest, InterviewResponse
+from app.models.schemas import (
+    CompetencyNode,
+    InterviewMeta,
+    InterviewRequest,
+    InterviewResponse,
+    ScoreBreakdown,
+)
 from app.services.evaluator import evaluate_answer
 from app.services.interview_planner import (
     build_follow_up_question as build_follow_up_question_fallback,
@@ -27,6 +35,73 @@ def _update_competency(session, topic_title: str, score: float) -> None:
         session.competency_map[topic_title] = round(score, 2)
     else:
         session.competency_map[topic_title] = round((existing + score) / 2, 2)
+
+
+def _score_level(score: float) -> str:
+    if score >= 0.75:
+        return "strong"
+    if score >= 0.55:
+        return "average"
+    return "weak"
+
+
+def _recommendation_label(session) -> str | None:
+    if not session.transcript:
+        return None
+
+    avg_score = mean([turn["score"] for turn in session.transcript])
+
+    if avg_score >= 0.78:
+        return "Interview Ready"
+    if avg_score >= 0.62:
+        return "Promising, Needs More Depth"
+    return "Needs Revision"
+
+
+def _build_meta(session) -> InterviewMeta:
+    competency_nodes = [
+        CompetencyNode(
+            topic=topic,
+            score=round(score * 100, 1),
+            level=_score_level(score),
+        )
+        for topic, score in sorted(
+            session.competency_map.items(),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+    ]
+
+    score_breakdown = None
+    if session.transcript:
+        technical_avg = round(
+            mean([turn.get("technical_score", 3) for turn in session.transcript]),
+            1,
+        )
+        communication_avg = round(
+            mean([turn.get("communication_score", 3) for turn in session.transcript]),
+            1,
+        )
+        reasoning_avg = round(
+            mean([turn.get("reasoning_score", 3) for turn in session.transcript]),
+            1,
+        )
+
+        score_breakdown = ScoreBreakdown(
+            technical=technical_avg,
+            communication=communication_avg,
+            reasoning=reasoning_avg,
+        )
+
+    return InterviewMeta(
+        sessionId=session.session_id,
+        currentQuestion=min(max(session.questions_asked, 1), 8),
+        totalQuestions=8,
+        coveredDays=sorted(session.covered_days),
+        competencyMap=competency_nodes[:8],
+        recommendation=_recommendation_label(session),
+        scoreBreakdown=score_breakdown,
+    )
 
 
 @router.post("/interview", response_model=InterviewResponse)
@@ -67,6 +142,7 @@ def interview(request: InterviewRequest):
                 f"{first_question}"
             ),
             done=False,
+            meta=_build_meta(session),
         )
 
     # CONTINUE INTERVIEW
@@ -144,6 +220,7 @@ def interview(request: InterviewRequest):
         return InterviewResponse(
             reply=f"Thanks, that's helpful.\n\n{follow_up}",
             done=False,
+            meta=_build_meta(session),
         )
 
     # AFTER FOLLOW-UP -> MOVE TO NEXT TOPIC OR FINISH
@@ -160,6 +237,7 @@ def interview(request: InterviewRequest):
             reply="Interview completed.",
             done=True,
             feedback=feedback,
+            meta=_build_meta(session),
         )
 
     next_topic = session.topic_queue[session.current_topic_index]
@@ -184,4 +262,5 @@ def interview(request: InterviewRequest):
     return InterviewResponse(
         reply=f"Got it. Let's move to another part of your cohort journey.\n\n{next_question}",
         done=False,
+        meta=_build_meta(session),
     )

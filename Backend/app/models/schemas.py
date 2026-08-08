@@ -44,7 +44,30 @@ class Feedback(BaseModel):
     next: List[str]
 
 
+class CompetencyNode(BaseModel):
+    topic: str
+    score: float
+    level: str
+
+
+class ScoreBreakdown(BaseModel):
+    technical: float
+    communication: float
+    reasoning: float
+
+
+class InterviewMeta(BaseModel):
+    sessionId: str
+    currentQuestion: int
+    totalQuestions: int
+    coveredDays: List[int]
+    competencyMap: List[CompetencyNode]
+    recommendation: Optional[str] = None
+    scoreBreakdown: Optional[ScoreBreakdown] = None
+
+
 class InterviewResponse(BaseModel):
     reply: str
     done: bool
     feedback: Optional[Feedback] = None
+    meta: Optional[InterviewMeta] = None

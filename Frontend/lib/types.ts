@@ -38,8 +38,31 @@ export type Feedback = {
   next: string[];
 };
 
+export type CompetencyNode = {
+  topic: string;
+  score: number;
+  level: "strong" | "average" | "weak";
+};
+
+export type ScoreBreakdown = {
+  technical: number;
+  communication: number;
+  reasoning: number;
+};
+
+export type InterviewMeta = {
+  sessionId: string;
+  currentQuestion: number;
+  totalQuestions: number;
+  coveredDays: number[];
+  competencyMap: CompetencyNode[];
+  recommendation?: string | null;
+  scoreBreakdown?: ScoreBreakdown | null;
+};
+
 export type InterviewResponse = {
   reply: string;
   done: boolean;
   feedback?: Feedback | null;
+  meta?: InterviewMeta | null;
 };
