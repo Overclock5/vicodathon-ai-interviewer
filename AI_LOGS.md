@@ -267,3 +267,20 @@ Integrated the frontend with the backend locally. The UI now supports candidate 
 
 **Notes / decisions:**  
 Used a local frontend env variable (`NEXT_PUBLIC_API_BASE_URL`) so the same frontend can later be connected to a deployed backend without code changes.
+
+## Session 5A - Backend deployed publicly on Render
+
+**Goal:**  
+Host the FastAPI backend publicly so the Vercel frontend can call it in the live demo.
+
+**Prompt given to AI:**  
+Help deploy the backend publicly and connect it to the frontend using environment variables.
+
+**AI response summary:**  
+The AI recommended deploying FastAPI on Render, testing the live backend endpoints, and configuring Vercel with `NEXT_PUBLIC_API_BASE_URL` pointing to the Render backend URL.
+
+**Implementation outcome:**  
+Successfully deployed the backend on Render at a public URL and prepared the frontend for live API integration.
+
+**Notes / decisions:**  
+Used Render Web Service instead of Blueprint. Fixed Linux case-sensitivity issues in backend folder names during deployment.
