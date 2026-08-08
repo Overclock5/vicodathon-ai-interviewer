@@ -290,7 +290,7 @@ Used Render Web Service instead of Blueprint. Fixed Linux case-sensitivity issue
 **Goal:**  
 Make the product’s three signature features visible in the UI: Dynamic Interview Path, Interview Mind Map, and Hiring Recommendation.
 
-**Prompt given to AI:**  
+**Prompt given to Arena AI:**  
 Design the next polish step for the AI Interview Agent. Keep the API contract intact, but expose useful interview metadata so the frontend can show live progress, competency tracking, and a stronger final report.
 
 **AI response summary:**  
