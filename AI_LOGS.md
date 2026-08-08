@@ -109,7 +109,7 @@ The project moved from an initial concept into a structured implementation-ready
 **Goal:**  
 Resolve backend startup import error.
 
-**Prompt given to AI:**  
+**Prompt given to Arena AI:**  
 The backend failed to start and showed `NameError: name 'undefined' is not defined` inside `backend/app/__init__.py`.
 
 **AI response summary:**  
@@ -166,3 +166,38 @@ Built the real backend interview contract with:
 
 **Notes / decisions:**  
 Used a deterministic planner first to guarantee API stability and testability. Deferred LLM-based natural phrasing and richer evaluation to the next step.
+
+
+## Session 3 - LLM integration with OpenRouter and safe fallback
+
+**Goal:**  
+Upgrade the working interview backend with more natural question generation, smarter follow-ups, and better answer evaluation using an LLM layer.
+
+**Prompt given to  Arena AI:**  
+Enhance the existing deterministic interview engine using OpenRouter. Keep the official API contract unchanged, but improve question phrasing, follow-up quality, answer evaluation, and final feedback. Ensure the system still works if the LLM is unavailable.
+
+**AI response summary:**  
+The AI recommended:
+- using an OpenAI-compatible client with OpenRouter
+- adding environment-based config for model, base URL, and API key
+- separating prompts into a `prompt_builder` service
+- generating primary and follow-up questions through the LLM
+- evaluating answers with a structured JSON rubric
+- polishing final feedback with the LLM
+- keeping deterministic fallback logic for reliability
+
+**Implementation outcome:**  
+Integrated OpenRouter-compatible LLM support into the backend while preserving the same `/api/interview` contract. The system now supports smarter interview behavior while safely falling back to deterministic logic if the model call fails.
+
+**Files changed:**  
+- backend/requirements.txt
+- backend/app/core/config.py
+- backend/app/services/prompt_builder.py
+- backend/app/services/llm_service.py
+- backend/app/services/evaluator.py
+- backend/app/services/recommendation.py
+- backend/app/routers/interview.py
+- backend/.env.example
+
+**Notes / decisions:**  
+Chose a hybrid architecture: deterministic planning for coverage/control, and LLM generation for realism and adaptability.
