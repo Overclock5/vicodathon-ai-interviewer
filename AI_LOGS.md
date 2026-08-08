@@ -233,3 +233,37 @@ Adjusted the LLM architecture to use OpenRouter securely through backend environ
 
 **Notes / decisions:**  
 Avoided exposing any secret to the frontend. Standardized on `OPENROUTER_API_KEY` for the initial provider setup.
+
+## Session 5 - Frontend and backend integration for live interview flow
+
+**Goal:**  
+Connect the deployed frontend structure to the working FastAPI backend so a user can select a candidate, complete an interview, and view the final report from the UI.
+
+**Prompt given to AI:**  
+Build the next step of the hackathon project: add a candidate selection UI, chat-based interview flow, report page, and required backend support endpoint for candidates. Keep the frontend simple, stable, and commit-friendly.
+
+**AI response summary:**  
+The AI recommended:
+- adding a backend `GET /api/candidates` endpoint
+- allowing CORS for browser-based frontend calls
+- using a frontend environment variable for backend API base URL
+- creating TypeScript types and API helper functions
+- building three frontend screens: home, interview, and report
+- storing the selected candidate and final report in browser storage for flow continuity
+
+**Implementation outcome:**  
+Integrated the frontend with the backend locally. The UI now supports candidate selection, chat interview progression, and final feedback rendering.
+
+**Files changed:**  
+- Backend/app/routers/candidates.py
+- Backend/app/main.py
+- Frontend/lib/types.ts
+- Frontend/lib/api.ts
+- Frontend/app/page.tsx
+- Frontend/app/interview/page.tsx
+- Frontend/app/report/page.tsx
+- Frontend/.env.local.example
+- .gitignore
+
+**Notes / decisions:**  
+Used a local frontend env variable (`NEXT_PUBLIC_API_BASE_URL`) so the same frontend can later be connected to a deployed backend without code changes.
