@@ -201,3 +201,35 @@ Integrated OpenRouter-compatible LLM support into the backend while preserving t
 
 **Notes / decisions:**  
 Chose a hybrid architecture: deterministic planning for coverage/control, and LLM generation for realism and adaptability.
+
+
+
+## Session 4 - Modular OpenRouter integration with secure server-side configuration
+
+**Goal:**  
+Add LLM intelligence to the interview engine using OpenRouter as the initial provider, while keeping the integration modular and secure.
+
+**Prompt given to Arena AI:**  
+Use OpenRouter as the initial LLM provider. Keep the integration modular so the model can be changed through environment variables. Use the LLM for adaptive interview questions, follow-ups, answer evaluation, final feedback, and the planned features. Keep API keys server-side and never expose them to the frontend. Use `OPENROUTER_API_KEY` instead of hard-coding secrets.
+
+**AI response summary:**  
+The AI recommended:
+- provider-based backend configuration using environment variables
+- `LLM_PROVIDER=openrouter`
+- `OPENROUTER_API_KEY` and `OPENROUTER_BASE_URL`
+- server-side LLM calls through FastAPI only
+- modular `config.py` and `llm_service.py`
+- deterministic fallback behavior if the LLM is unavailable
+
+**Implementation outcome:**  
+Adjusted the LLM architecture to use OpenRouter securely through backend environment variables, while preserving the ability to switch providers or models later.
+
+**Files changed:**  
+- backend/app/core/config.py
+- backend/app/services/llm_service.py
+- backend/.env.example
+- backend/.env
+- .gitignore
+
+**Notes / decisions:**  
+Avoided exposing any secret to the frontend. Standardized on `OPENROUTER_API_KEY` for the initial provider setup.
