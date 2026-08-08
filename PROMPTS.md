@@ -109,3 +109,17 @@ Built the main frontend flow for the product:
 - backend integration using environment variables
 This made the project transition from a backend prototype into a usable demo product.
 
+## Prompt 7
+**Goal:** Make the product more impressive for judges by exposing the interview intelligence visually.
+
+**Prompt:**
+Keep the backend contract compatible, but extend the AI Interview Agent so the frontend can display a live competency map, progress indicators, score breakdowns, and a stronger final report. Make the three signature features clearly visible.
+
+**AI Output Summary:**
+Suggested:
+- adding optional response metadata for question progress, covered days, competency map, recommendation, and score breakdown
+- rendering a live “Interview Mind Map” in the interview UI
+- upgrading the final report with recommendation badges, dimension scores, competency bars, and transcript snapshot
+
+**Outcome Implemented:**
+Enhanced both backend responses and frontend presentation so the adaptive behavior of the interviewer is visible during the interview and in the final report.

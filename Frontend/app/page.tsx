@@ -4,9 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchCandidates } from "../lib/api";
 import type { CandidateProfile } from "../lib/types";
+import { useResponsive } from "../lib/useResponsive";
 
 export default function HomePage() {
   const router = useRouter();
+  const { isMobile, isTablet, isDesktop } = useResponsive();
+
   const [candidates, setCandidates] = useState<CandidateProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -55,7 +58,7 @@ export default function HomePage() {
         minHeight: "100vh",
         background: "#050505",
         color: "#ffffff",
-        padding: "32px 20px",
+        padding: isMobile ? "20px 14px" : "32px 20px",
       }}
     >
       <div style={{ maxWidth: 1150, margin: "0 auto" }}>
@@ -72,16 +75,24 @@ export default function HomePage() {
 
         <h1
           style={{
-            fontSize: 48,
+            fontSize: isMobile ? 34 : isTablet ? 40 : 48,
             fontWeight: 800,
             marginTop: 16,
             marginBottom: 12,
+            lineHeight: 1.1,
           }}
         >
           Adaptive AI Interview Agent
         </h1>
 
-        <p style={{ color: "#d4d4d8", fontSize: 18, maxWidth: 900 }}>
+        <p
+          style={{
+            color: "#d4d4d8",
+            fontSize: isMobile ? 15 : 18,
+            maxWidth: 900,
+            lineHeight: 1.6,
+          }}
+        >
           A personalized technical interviewer that adapts to each candidate’s
           AI cohort journey, asks intelligent follow-up questions, tracks topic
           mastery, and generates structured feedback.
@@ -91,7 +102,7 @@ export default function HomePage() {
           style={{
             display: "grid",
             gap: 20,
-            gridTemplateColumns: "1.2fr 1fr",
+            gridTemplateColumns: isDesktop ? "1.2fr 1fr" : "1fr",
             marginTop: 32,
           }}
         >
@@ -100,10 +111,15 @@ export default function HomePage() {
               background: "#111111",
               border: "1px solid #27272a",
               borderRadius: 18,
-              padding: 24,
+              padding: isMobile ? 18 : 24,
             }}
           >
-            <h2 style={{ fontSize: 28, marginBottom: 16 }}>
+            <h2
+              style={{
+                fontSize: isMobile ? 24 : 28,
+                marginBottom: 16,
+              }}
+            >
               Choose a Candidate
             </h2>
 
@@ -120,12 +136,9 @@ export default function HomePage() {
                 }}
               >
                 <p style={{ margin: 0, fontWeight: 600 }}>Backend not reachable</p>
-                <p style={{ marginTop: 8 }}>
-                  {error}
-                </p>
+                <p style={{ marginTop: 8 }}>{error}</p>
                 <p style={{ marginTop: 8, color: "#fda4af" }}>
-                  Make sure FastAPI is running on {`http://127.0.0.1:8000`} and
-                  Frontend/.env.local contains NEXT_PUBLIC_API_BASE_URL.
+                  Make sure FastAPI is running or the deployed backend URL is correctly configured.
                 </p>
               </div>
             )}
@@ -154,13 +167,19 @@ export default function HomePage() {
                       <div
                         style={{
                           display: "flex",
+                          flexDirection: isMobile ? "column" : "row",
                           justifyContent: "space-between",
-                          alignItems: "center",
-                          gap: 16,
+                          alignItems: isMobile ? "flex-start" : "center",
+                          gap: 12,
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: 18, fontWeight: 700 }}>
+                          <div
+                            style={{
+                              fontSize: isMobile ? 16 : 18,
+                              fontWeight: 700,
+                            }}
+                          >
                             {candidate.member.name}
                           </div>
                           <div style={{ color: "#a1a1aa", marginTop: 4 }}>
@@ -168,6 +187,7 @@ export default function HomePage() {
                             {candidate.member.yearsExperience} years
                           </div>
                         </div>
+
                         <div
                           style={{
                             padding: "6px 10px",
@@ -193,19 +213,32 @@ export default function HomePage() {
               background: "#111111",
               border: "1px solid #27272a",
               borderRadius: 18,
-              padding: 24,
+              padding: isMobile ? 18 : 24,
             }}
           >
-            <h2 style={{ fontSize: 28, marginBottom: 16 }}>Interview Preview</h2>
+            <h2
+              style={{
+                fontSize: isMobile ? 24 : 28,
+                marginBottom: 16,
+              }}
+            >
+              Interview Preview
+            </h2>
 
             {selectedCandidate ? (
               <>
                 <div style={{ marginBottom: 20 }}>
                   <p style={{ margin: 0, color: "#a1a1aa" }}>Candidate</p>
-                  <h3 style={{ marginTop: 8, marginBottom: 8, fontSize: 24 }}>
+                  <h3
+                    style={{
+                      marginTop: 8,
+                      marginBottom: 8,
+                      fontSize: isMobile ? 22 : 24,
+                    }}
+                  >
                     {selectedCandidate.member.name}
                   </h3>
-                  <p style={{ color: "#d4d4d8", margin: 0 }}>
+                  <p style={{ color: "#d4d4d8", margin: 0, lineHeight: 1.5 }}>
                     {selectedCandidate.member.jobRole} •{" "}
                     {selectedCandidate.member.education}
                   </p>
@@ -262,7 +295,11 @@ export default function HomePage() {
             marginTop: 28,
             display: "grid",
             gap: 14,
-            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+            gridTemplateColumns: isMobile
+              ? "1fr"
+              : isTablet
+              ? "1fr 1fr"
+              : "repeat(3, minmax(0, 1fr))",
           }}
         >
           <FeatureCard
@@ -310,7 +347,7 @@ function FeatureCard({ title, text }: { title: string; text: string }) {
       }}
     >
       <h3 style={{ marginTop: 0, marginBottom: 10, fontSize: 22 }}>{title}</h3>
-      <p style={{ margin: 0, color: "#d4d4d8" }}>{text}</p>
+      <p style={{ margin: 0, color: "#d4d4d8", lineHeight: 1.6 }}>{text}</p>
     </div>
   );
 }
