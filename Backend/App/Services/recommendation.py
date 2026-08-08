@@ -17,13 +17,21 @@ def build_feedback(session) -> Feedback:
             summary="Interview ended before enough answers were collected.",
             strengths=["Interview session was initialized successfully."],
             gaps=["Not enough response data to evaluate technical depth."],
-            next=["Complete the full interview to receive actionable feedback."]
+            next=["Complete the full interview to receive actionable feedback."],
         )
 
     average_scores = {
         day: round(mean(scores), 2)
         for day, scores in scores_by_day.items()
     }
+
+    technical_scores = [turn.get("technical_score", 3) for turn in session.transcript]
+    communication_scores = [turn.get("communication_score", 3) for turn in session.transcript]
+    reasoning_scores = [turn.get("reasoning_score", 3) for turn in session.transcript]
+
+    technical_avg = round(mean(technical_scores), 1)
+    communication_avg = round(mean(communication_scores), 1)
+    reasoning_avg = round(mean(reasoning_scores), 1)
 
     sorted_high = sorted(average_scores.items(), key=lambda item: item[1], reverse=True)
     sorted_low = sorted(average_scores.items(), key=lambda item: item[1])
@@ -86,13 +94,14 @@ def build_feedback(session) -> Feedback:
 
     summary = (
         f"{session.candidate.member.name} completed an 8-question interview across "
-        f"{len(scores_by_day)} curriculum days. Overall, the candidate is {readiness}. "
-        f"The strongest signals came from covered cohort topics where explanations were clearer and more specific."
+        f"{len(scores_by_day)} curriculum days. Average technical score: {technical_avg}/5, "
+        f"communication: {communication_avg}/5, reasoning: {reasoning_avg}/5. "
+        f"Overall, the candidate is {readiness}."
     )
 
     return Feedback(
         summary=summary,
         strengths=strengths[:3],
         gaps=gaps[:3],
-        next=next_steps[:3]
+        next=next_steps[:3],
     )

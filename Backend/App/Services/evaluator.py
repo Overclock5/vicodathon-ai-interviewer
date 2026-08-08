@@ -1,6 +1,8 @@
 import re
 from typing import Any, Dict, Set
 
+from app.services.llm_service import evaluate_answer_with_llm
+
 
 STOPWORDS = {
     "this", "that", "with", "from", "into", "your", "their", "about", "would",
@@ -33,7 +35,19 @@ def _expected_keywords(topic: Dict[str, Any]) -> Set[str]:
     return keywords
 
 
-def evaluate_answer(answer: str, topic: Dict[str, Any]) -> Dict[str, Any]:
+def _heuristic_dimension_scores(quality: str) -> tuple[int, int, int]:
+    if quality == "strong":
+        return 5, 4, 4
+    if quality == "medium":
+        return 3, 3, 3
+    return 2, 2, 2
+
+
+def evaluate_answer(answer: str, topic: Dict[str, Any], question_kind: str) -> Dict[str, Any]:
+    llm_result = evaluate_answer_with_llm(answer, topic, question_kind)
+    if llm_result is not None:
+        return llm_result
+
     answer_text = answer.strip()
     answer_tokens = _tokenize(answer_text)
     expected = _expected_keywords(topic)
@@ -51,9 +65,22 @@ def evaluate_answer(answer: str, topic: Dict[str, Any]) -> Dict[str, Any]:
         quality = "weak"
         score = 0.40
 
+    technical_score, communication_score, reasoning_score = _heuristic_dimension_scores(quality)
+
+    evidence = []
+    if keyword_hits > 0:
+        evidence.append(f"Referenced {keyword_hits} topic-relevant keywords.")
+    if word_count >= 18:
+        evidence.append("Provided more than a one-line answer.")
+
     return {
         "quality": quality,
         "score": score,
         "keyword_hits": keyword_hits,
-        "word_count": word_count
+        "word_count": word_count,
+        "technical_score": technical_score,
+        "communication_score": communication_score,
+        "reasoning_score": reasoning_score,
+        "evidence": evidence[:3],
+        "gap": "",
     }
