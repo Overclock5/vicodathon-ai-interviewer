@@ -124,7 +124,7 @@ Suggested:
 **Outcome Implemented:**
 Enhanced both backend responses and frontend presentation so the adaptive behavior of the interviewer is visible during the interview and in the final report.
 
-## Prompt 8
+## Prompt 7
 **Goal:** Improve frontend responsiveness for the live demo.
 
 **Prompt:**
@@ -140,3 +140,31 @@ Suggested:
 
 **Outcome Implemented:**
 Improved the responsiveness of the user-facing interface across the main product screens.
+
+## Prompt 8
+
+**Goal:** Deploy the backend publicly and connect the live frontend to it.
+
+**Prompt:**
+
+Plan a hackathon-friendly deployment setup for the AI Interview Agent. The frontend is already on Vercel, and the backend is a FastAPI app. Keep secrets server-side, use environment variables, and make the live frontend work with the deployed backend.
+
+**AI Output Summary:**
+
+Suggested:
+
+- deploying FastAPI on Render
+
+- using a deployment configuration file
+
+- keeping `OPENROUTER_API_KEY` only in backend environment variables
+
+- testing `/health`, `/api/candidates`, and `/docs` after deployment
+
+- configuring Vercel with `NEXT_PUBLIC_API_BASE_URL` pointing to the deployed backend
+
+- redeploying Vercel after updating environment variables
+
+**Outcome Implemented:**
+
+Deployed the backend publicly on Render and connected the frontend to the live backend using environment-based configuration.
