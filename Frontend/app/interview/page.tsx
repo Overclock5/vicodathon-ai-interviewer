@@ -1,15 +1,13 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { continueInterview, startInterview } from "../../lib/api";
 import type {
   CandidateProfile,
-  InterviewMeta,
   Feedback,
+  InterviewMeta,
 } from "../../lib/types";
-import { useResponsive } from "../../lib/useResponsive";
 
 type ChatMessage = {
   role: "assistant" | "user";
@@ -22,33 +20,31 @@ function getQuestionNumber(text: string): number | null {
   return Number(match[1]);
 }
 
-function getRecommendationPillStyle(label?: string | null): CSSProperties {
-  if (label?.toLowerCase().includes("ready")) {
-    return {
-      background: "#052e16",
-      color: "#bbf7d0",
-      border: "1px solid #16a34a",
-    };
-  }
+function getRecommendationPillClass(label?: string | null) {
+  if (!label) return "pill pill-cyan";
+  const value = label.toLowerCase();
+  if (value.includes("ready")) return "pill pill-green";
+  if (value.includes("promising")) return "pill pill-yellow";
+  return "pill pill-red";
+}
 
-  if (label?.toLowerCase().includes("promising")) {
-    return {
-      background: "#3f2a05",
-      color: "#fde68a",
-      border: "1px solid #ca8a04",
-    };
-  }
+function getDisplayRecommendationLabel(label?: string | null) {
+  if (!label) return "Interview in Progress";
+  if (label === "Needs Revision") return "Needs More Depth";
+  return label;
+}
 
-  return {
-    background: "#3f0d0d",
-    color: "#fecaca",
-    border: "1px solid #dc2626",
-  };
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 }
 
 export default function InterviewPage() {
   const router = useRouter();
-  const { isMobile, isDesktop } = useResponsive();
 
   const [candidate, setCandidate] = useState<CandidateProfile | null>(null);
   const [sessionId, setSessionId] = useState("");
@@ -132,8 +128,7 @@ export default function InterviewPage() {
         const questionNumber = getQuestionNumber(response.reply);
         setMeta({
           ...response.meta,
-          currentQuestion:
-            questionNumber ?? response.meta.currentQuestion,
+          currentQuestion: questionNumber ?? response.meta.currentQuestion,
         });
       }
 
@@ -157,9 +152,10 @@ export default function InterviewPage() {
     }
   }
 
-  const completedAnswers = useMemo(() => {
-    return messages.filter((message) => message.role === "user").length;
-  }, [messages]);
+  const completedAnswers = useMemo(
+    () => messages.filter((message) => message.role === "user").length,
+    [messages]
+  );
 
   const progressPercent = meta
     ? Math.min((completedAnswers / meta.totalQuestions) * 100, 100)
@@ -170,144 +166,123 @@ export default function InterviewPage() {
 
   if (loading) {
     return (
-      <main style={pageStyle(isMobile)}>
-        <div style={containerStyle}>
-          <p style={{ color: "#a1a1aa" }}>Starting interview...</p>
-        </div>
+      <main className="app-shell">
+        <p className="muted-note">Starting interview...</p>
       </main>
     );
   }
 
   if (error && messages.length === 0) {
     return (
-      <main style={pageStyle(isMobile)}>
-        <div style={containerStyle}>
-          <div style={errorCardStyle}>
-            <h2 style={{ marginTop: 0 }}>Unable to start interview</h2>
-            <p>{error}</p>
-          </div>
+      <main className="app-shell">
+        <div className="error-card">
+          <h2 style={{ marginTop: 0 }}>Unable to start interview</h2>
+          <p style={{ marginBottom: 0 }}>{error}</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main style={pageStyle(isMobile)}>
-      <div style={containerStyle}>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: isDesktop ? "340px 1fr" : "1fr",
-            gap: 20,
-            alignItems: "start",
-          }}
-        >
-          <aside
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 16,
-              alignSelf: "start",
-              position: isDesktop ? "sticky" : "static",
-              top: isDesktop ? 24 : "auto",
-              maxHeight: isDesktop ? "calc(100vh - 48px)" : "none",
-              overflowY: isDesktop ? "auto" : "visible",
-              paddingRight: isDesktop ? 4 : 0,
-            }}
-          >
-            <div style={panelStyle(isMobile)}>
-              <p style={mutedLabelStyle}>Candidate</p>
-              <h2 style={{ marginTop: 8, marginBottom: 8 }}>
-                {candidate?.member.name}
-              </h2>
-              <p style={{ color: "#d4d4d8", margin: 0 }}>
-                {candidate?.member.jobRole}
-              </p>
-            </div>
+    <main className="app-shell">
+      <div className="interview-layout">
+        <aside className="sidebar-stack">
+          <section className="glass-card">
+            <div className="card-inner">
+              <p className="section-label">Candidate</p>
 
-            <div style={panelStyle(isMobile)}>
-              <p style={mutedLabelStyle}>Interview Progress</p>
-              <div
-                style={{
-                  fontSize: isMobile ? 24 : 30,
-                  fontWeight: 800,
-                  marginTop: 8,
-                }}
-              >
-                {meta?.currentQuestion || completedAnswers}/
-                {meta?.totalQuestions || 8}
+              <div className="preview-person" style={{ marginTop: 14, marginBottom: 0 }}>
+                <div className="avatar lg">
+                  {candidate ? getInitials(candidate.member.name) : "AI"}
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 28, lineHeight: 1.05 }}>
+                    {candidate?.member.name}
+                  </h3>
+                  <p className="preview-role" style={{ marginTop: 8 }}>
+                    {candidate?.member.jobRole}
+                  </p>
+                </div>
               </div>
-              <p style={{ color: "#a1a1aa", marginTop: 8 }}>
+            </div>
+          </section>
+
+          <section className="glass-card">
+            <div className="card-inner">
+              <p className="section-label">Interview Progress</p>
+
+              <div style={{ marginTop: 12, fontSize: 28, fontWeight: 820 }}>
+                {meta?.currentQuestion || completedAnswers}/{meta?.totalQuestions || 8}
+              </div>
+
+              <p className="muted-note" style={{ marginTop: 8 }}>
                 Answers submitted: {completedAnswers}
               </p>
 
-              <div style={progressTrackStyle}>
+              <div className="progress-track" style={{ marginTop: 16 }}>
                 <div
-                  style={{
-                    ...progressFillStyle,
-                    width: `${progressPercent}%`,
-                  }}
+                  className="progress-fill"
+                  style={{ width: `${progressPercent}%` }}
                 />
               </div>
             </div>
+          </section>
 
-            <div style={panelStyle(isMobile)}>
-              <p style={mutedLabelStyle}>Covered Curriculum Days</p>
-              <div style={badgeWrapStyle}>
+          <section className="glass-card">
+            <div className="card-inner">
+              <p className="section-label">Covered Curriculum Days</p>
+
+              <div className="badge-wrap">
                 {(meta?.coveredDays ?? []).length > 0 ? (
                   meta?.coveredDays.map((day) => (
-                    <span key={day} style={dayBadgeStyle}>
-                      Day {day}
+                    <span key={day} className="day-badge">
+                      D{day}
                     </span>
                   ))
                 ) : (
-                  <span style={{ color: "#a1a1aa" }}>
+                  <span className="muted-note">
                     Days will appear here as the interview progresses.
                   </span>
                 )}
               </div>
             </div>
+          </section>
 
-            <div style={panelStyle(isMobile)}>
-              <p style={mutedLabelStyle}>Interview Mind Map</p>
-              <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+          <section className="glass-card">
+            <div className="card-inner">
+              <p className="section-label">Interview Mind Map</p>
+
+              <div className="skill-grid">
                 {(meta?.competencyMap ?? []).map((node) => (
                   <div key={node.topic}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 10,
-                        marginBottom: 6,
-                      }}
-                    >
-                      <span style={{ fontWeight: 600 }}>{node.topic}</span>
+                    <div className="skill-head">
+                      <span className="skill-name">{node.topic}</span>
                       <span
+                        className="skill-level"
                         style={{
                           color:
                             node.level === "strong"
                               ? "#86efac"
                               : node.level === "average"
-                              ? "#fde68a"
-                              : "#fca5a5",
-                          fontSize: 13,
-                          textTransform: "capitalize",
+                                ? "#fde68a"
+                                : "#fca5a5",
                         }}
                       >
                         {node.level}
                       </span>
                     </div>
-                    <div style={skillTrackStyle}>
+
+                    <div className="skill-track">
                       <div
+                        className="skill-fill"
                         style={{
-                          ...skillFillStyle,
                           width: `${node.score}%`,
                           background:
                             node.level === "strong"
-                              ? "#16a34a"
+                              ? "#22c55e"
                               : node.level === "average"
-                              ? "#ca8a04"
-                              : "#dc2626",
+                                ? "#eab308"
+                                : "#ef4444",
                         }}
                       />
                     </div>
@@ -315,25 +290,22 @@ export default function InterviewPage() {
                 ))}
               </div>
             </div>
+          </section>
 
-            <div
-              style={{
-                ...panelStyle(isMobile),
-                minHeight: isDesktop ? 220 : "auto",
-              }}
-            >
-              <p style={mutedLabelStyle}>Live Interview Signals</p>
+          <section className="glass-card">
+            <div className="card-inner">
+              <p className="section-label">Live Interview Signals</p>
 
-              <div style={{ display: "grid", gap: 14, marginTop: 14 }}>
-                <SignalBlock
+              <div className="signal-grid">
+                <SignalCard
                   title="Current Recommendation"
                   value={meta?.recommendation || "Building signal..."}
                 />
-                <SignalBlock
+                <SignalCard
                   title="Covered Days"
                   value={`${coveredDaysCount} topic day${coveredDaysCount === 1 ? "" : "s"}`}
                 />
-                <SignalBlock
+                <SignalCard
                   title="Strongest Current Topic"
                   value={
                     strongestTopic
@@ -341,90 +313,66 @@ export default function InterviewPage() {
                       : "Will appear as the interview progresses"
                   }
                 />
-                <SignalBlock
+                <SignalCard
                   title="What the interviewer is testing"
-                  value="Concept clarity, implementation detail, trade-offs, and production thinking."
+                  value="Concept clarity, implementation detail, engineering trade-offs, and production thinking."
                 />
               </div>
             </div>
-          </aside>
+          </section>
+        </aside>
 
-          <section style={chatPanelStyle(isMobile)}>
-            <div style={chatHeaderStyle}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 16,
-                  flexWrap: "wrap",
-                }}
-              >
-                <div>
-                  <h1 style={{ margin: 0, fontSize: isMobile ? 24 : 28 }}>
-                    Interview Workspace
-                  </h1>
-                  <p style={{ color: "#a1a1aa", marginTop: 8 }}>
-                    Respond naturally as if you are in a real technical interview.
-                  </p>
-                </div>
-
-                {meta?.recommendation ? (
-                  <span
-                    style={{
-                      ...recommendationPillStyle,
-                      ...getRecommendationPillStyle(meta?.recommendation),
-                    }}
-                  >
-                    Signal: {meta.recommendation}
-                  </span>
-                ) : null}
+        <section className="glass-card chat-card">
+          <div className="card-inner" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <div className="chat-header">
+              <div>
+                <h1 className="chat-title">Interview Workspace</h1>
+                <p className="chat-subtitle">
+                  Respond naturally as if you are in a real technical interview.
+                </p>
               </div>
+
+              {meta?.recommendation ? (
+                <span className={getRecommendationPillClass(meta.recommendation)}>
+                  {getDisplayRecommendationLabel(meta.recommendation)}
+                </span>
+              ) : (
+                <span className="pill pill-cyan">Interview in Progress</span>
+              )}
             </div>
 
-            <div style={chatMessagesStyle}>
+            <div style={{ marginTop: 16 }}>
+              <span className="pill pill-cyan">
+                Adaptive follow-up in progress
+              </span>
+            </div>
+
+            <div className="chat-scroll">
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      message.role === "user" ? "flex-end" : "flex-start",
-                  }}
+                  className={`chat-row ${message.role === "user" ? "user" : "assistant"}`}
                 >
-                  <div
-                    style={{
-                      maxWidth: isMobile ? "92%" : "80%",
-                      padding: "14px 16px",
-                      borderRadius: 16,
-                      background:
-                        message.role === "user" ? "#0f766e" : "#18181b",
-                      border:
-                        message.role === "user"
-                          ? "1px solid #14b8a6"
-                          : "1px solid #27272a",
-                      whiteSpace: "pre-wrap",
-                      lineHeight: 1.5,
-                    }}
-                  >
-                    {message.text}
+                  <div className="bubble-stack">
+                    <p className="bubble-role">
+                      {message.role === "user" ? "Candidate" : "Interviewer"}
+                    </p>
+                    <div
+                      className={`chat-bubble ${message.role === "user" ? "user" : "assistant"}`}
+                    >
+                      {message.text}
+                    </div>
                   </div>
                 </div>
               ))}
 
               {sending && (
-                <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                  <div
-                    style={{
-                      maxWidth: isMobile ? "92%" : "80%",
-                      padding: "14px 16px",
-                      borderRadius: 16,
-                      background: "#18181b",
-                      border: "1px solid #27272a",
-                      color: "#a1a1aa",
-                    }}
-                  >
-                    Interviewer is thinking...
+                <div className="chat-row assistant">
+                  <div className="bubble-stack">
+                    <p className="bubble-role">Interviewer</p>
+                    <div className="chat-bubble assistant chat-thinking">
+                      Interviewer is thinking...
+                    </div>
                   </div>
                 </div>
               )}
@@ -433,40 +381,36 @@ export default function InterviewPage() {
             </div>
 
             {error && (
-              <div style={{ ...errorCardStyle, marginTop: 12 }}>
+              <div className="error-card" style={{ marginTop: 12 }}>
                 <p style={{ margin: 0 }}>{error}</p>
               </div>
             )}
 
-            <div style={inputRowStyle}>
+            <div className="input-zone">
               <textarea
+                className="input-textarea"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your interview answer..."
-                rows={4}
-                style={textareaStyle}
                 disabled={sending}
               />
+
               <button
+                className="primary-button"
                 onClick={handleSend}
                 disabled={sending || !input.trim()}
-                style={{
-                  ...sendButtonStyle,
-                  opacity: sending || !input.trim() ? 0.6 : 1,
-                  cursor: sending || !input.trim() ? "not-allowed" : "pointer",
-                }}
               >
                 {sending ? "Sending..." : "Send Answer"}
               </button>
             </div>
-          </section>
-        </div>
+          </div>
+        </section>
       </div>
     </main>
   );
 }
 
-function SignalBlock({
+function SignalCard({
   title,
   value,
 }: {
@@ -474,168 +418,9 @@ function SignalBlock({
   value: string;
 }) {
   return (
-    <div
-      style={{
-        background: "#18181b",
-        border: "1px solid #27272a",
-        borderRadius: 12,
-        padding: 12,
-      }}
-    >
-      <div
-        style={{
-          color: "#a1a1aa",
-          fontSize: 12,
-          textTransform: "uppercase",
-          letterSpacing: "0.06em",
-          marginBottom: 6,
-        }}
-      >
-        {title}
-      </div>
-      <div style={{ color: "#e4e4e7", lineHeight: 1.5 }}>{value}</div>
+    <div className="signal-card">
+      <p className="signal-title">{title}</p>
+      <p className="signal-value">{value}</p>
     </div>
   );
 }
-
-const pageStyle = (isMobile: boolean): CSSProperties => ({
-  minHeight: "100vh",
-  background: "#050505",
-  color: "#ffffff",
-  padding: isMobile ? "20px 14px" : "28px 18px",
-});
-
-const containerStyle: CSSProperties = {
-  maxWidth: 1280,
-  margin: "0 auto",
-};
-
-const panelStyle = (isMobile: boolean): CSSProperties => ({
-  background: "#111111",
-  border: "1px solid #27272a",
-  borderRadius: 18,
-  padding: isMobile ? 18 : 20,
-});
-
-const chatPanelStyle = (isMobile: boolean): CSSProperties => ({
-  background: "#111111",
-  border: "1px solid #27272a",
-  borderRadius: 18,
-  padding: isMobile ? 16 : 20,
-  display: "flex",
-  flexDirection: "column",
-  minHeight: "82vh",
-});
-
-const chatHeaderStyle: CSSProperties = {
-  borderBottom: "1px solid #27272a",
-  paddingBottom: 14,
-};
-
-const chatMessagesStyle: CSSProperties = {
-  flex: 1,
-  display: "grid",
-  gap: 14,
-  paddingTop: 18,
-  paddingBottom: 18,
-  overflowY: "auto",
-  minHeight: 320,
-};
-
-const inputRowStyle: CSSProperties = {
-  borderTop: "1px solid #27272a",
-  paddingTop: 16,
-  display: "grid",
-  gap: 12,
-};
-
-const textareaStyle: CSSProperties = {
-  width: "100%",
-  borderRadius: 14,
-  border: "1px solid #3f3f46",
-  background: "#09090b",
-  color: "#fff",
-  padding: 14,
-  fontSize: 15,
-  resize: "vertical",
-  boxSizing: "border-box",
-  minHeight: 120,
-  lineHeight: 1.5,
-};
-
-const sendButtonStyle: CSSProperties = {
-  background: "#0891b2",
-  color: "#fff",
-  border: "none",
-  borderRadius: 12,
-  padding: "14px 18px",
-  fontWeight: 700,
-  fontSize: 16,
-};
-
-const errorCardStyle: CSSProperties = {
-  background: "#2a1111",
-  border: "1px solid #7f1d1d",
-  color: "#fecaca",
-  padding: 16,
-  borderRadius: 12,
-};
-
-const mutedLabelStyle: CSSProperties = {
-  margin: 0,
-  color: "#a1a1aa",
-  fontSize: 13,
-  textTransform: "uppercase",
-  letterSpacing: "0.08em",
-};
-
-const progressTrackStyle: CSSProperties = {
-  width: "100%",
-  height: 10,
-  background: "#27272a",
-  borderRadius: 999,
-  overflow: "hidden",
-  marginTop: 14,
-};
-
-const progressFillStyle: CSSProperties = {
-  height: "100%",
-  background: "linear-gradient(90deg, #06b6d4, #3b82f6)",
-  borderRadius: 999,
-};
-
-const badgeWrapStyle: CSSProperties = {
-  display: "flex",
-  gap: 8,
-  flexWrap: "wrap",
-  marginTop: 12,
-};
-
-const dayBadgeStyle: CSSProperties = {
-  background: "#082f49",
-  color: "#bae6fd",
-  borderRadius: 999,
-  padding: "6px 10px",
-  fontSize: 12,
-  border: "1px solid #0ea5e9",
-};
-
-const skillTrackStyle: CSSProperties = {
-  width: "100%",
-  height: 10,
-  background: "#27272a",
-  borderRadius: 999,
-  overflow: "hidden",
-};
-
-const skillFillStyle: CSSProperties = {
-  height: "100%",
-  borderRadius: 999,
-};
-
-const recommendationPillStyle: CSSProperties = {
-  borderRadius: 999,
-  padding: "8px 12px",
-  fontWeight: 700,
-  fontSize: 13,
-};

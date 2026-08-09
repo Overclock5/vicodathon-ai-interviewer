@@ -239,7 +239,7 @@ Avoided exposing any secret to the frontend. Standardized on `OPENROUTER_API_KEY
 **Goal:**  
 Connect the deployed frontend structure to the working FastAPI backend so a user can select a candidate, complete an interview, and view the final report from the UI.
 
-**Prompt given to AI:**  
+**Prompt given to Arena AI:**  
 Build the next step of the hackathon project: add a candidate selection UI, chat-based interview flow, report page, and required backend support endpoint for candidates. Keep the frontend simple, stable, and commit-friendly.
 
 **AI response summary:**  
