@@ -194,3 +194,56 @@ Suggested:
 **Outcome Implemented:**
 
 Prepared the project for final demo and judging with dedicated QA and presentation documentation.
+
+
+## Prompt 10
+
+**Goal:** Upgrade the frontend visually so it matches a more polished, premium product experience.
+
+**Prompt:**
+
+Transform the working frontend into a premium dark-mode interface inspired by a polished SaaS dashboard. Keep the current product flow intact, but improve the visual impression across the home page, interview workspace, and final report.
+
+**AI Output Summary:**
+
+Suggested:
+
+- a premium dark background with subtle cyan and blue glow accents
+
+- refined card styling and spacing
+
+- stronger typography hierarchy
+
+- cleaner candidate list and preview panel
+
+- more polished interview chat workspace
+
+- upgraded final report layout with visual score emphasis
+
+**Outcome Implemented:**
+
+Applied a polished premium visual direction across the main product screens while preserving the existing interview logic and flow.
+
+## Prompt 11
+
+**Goal:** Fix awkward empty layout areas while keeping the newly polished UI direction.
+
+**Prompt:**
+
+Improve two visual issues in the polished UI: the interview page left sidebar leaves dead space when the chat grows, and the home page has too much empty space below the Interview Preview section. Keep the polished style and fill space with meaningful content instead of decorative filler.
+
+**AI Output Summary:**
+
+Suggested:
+
+- turning the interview sidebar into a sticky session rail
+
+- filling the remaining sidebar area with a live interview signals section
+
+- adding “How the Agent Thinks” and “Evaluation Dimensions” sections below the home page preview area
+
+- using informative UI elements so the extra space improves clarity for judges
+
+**Outcome Implemented:**
+
+Improved desktop layout balance and made the interface feel more intentional by turning empty areas into meaningful product sections.
