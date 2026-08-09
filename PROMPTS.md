@@ -168,3 +168,29 @@ Suggested:
 **Outcome Implemented:**
 
 Deployed the backend publicly on Render and connected the frontend to the live backend using environment-based configuration.
+
+## Prompt 9
+
+**Goal:** Prepare the project for final judging and submission.
+
+**Prompt:**
+
+Create a final QA checklist, demo script, and judge-facing pitch pack for the AI Interview Agent. Focus on reliability, presentation quality, and making the project easy to understand during evaluation.
+
+**AI Output Summary:**
+
+Suggested:
+
+- a final QA checklist
+
+- a short and detailed demo script
+
+- a judge pitch with likely Q&A
+
+- backend warm-up instructions
+
+- multi-candidate validation before submission
+
+**Outcome Implemented:**
+
+Prepared the project for final demo and judging with dedicated QA and presentation documentation.
