@@ -109,7 +109,7 @@ Built the main frontend flow for the product:
 - backend integration using environment variables
 This made the project transition from a backend prototype into a usable demo product.
 
-## Prompt 7
+## Prompt 6
 **Goal:** Make the product more impressive for judges by exposing the interview intelligence visually.
 
 **Prompt:**
@@ -123,3 +123,20 @@ Suggested:
 
 **Outcome Implemented:**
 Enhanced both backend responses and frontend presentation so the adaptive behavior of the interviewer is visible during the interview and in the final report.
+
+## Prompt 8
+**Goal:** Improve frontend responsiveness for the live demo.
+
+**Prompt:**
+Make the AI Interview Agent frontend responsive across different screen sizes, especially for the landing page, interview workspace, and final report. Keep the layout clean and simple for a hackathon MVP.
+
+**AI Output Summary:**
+Suggested:
+- a lightweight responsive hook
+- dynamic grid layouts for mobile/tablet/desktop
+- stacked panels for smaller screens
+- adjusted spacing, font sizes, and cards
+- responsive treatment for candidate cards, interview sidebar, and report dashboard
+
+**Outcome Implemented:**
+Improved the responsiveness of the user-facing interface across the main product screens.

@@ -151,3 +151,13 @@ The backend exposes the required endpoint:
 
 ```http
 POST /api/interview
+
+## Demo Flow
+
+1. Open the live frontend
+2. Select a candidate profile
+3. Start the adaptive interview
+4. Answer multi-turn technical questions
+5. Observe follow-up adaptation and progress
+6. Complete the interview
+7. Review final feedback, scores, and competency map
