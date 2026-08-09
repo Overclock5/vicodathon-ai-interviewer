@@ -312,3 +312,34 @@ Added live metadata to the interview flow and upgraded the UI to make the system
 
 **Notes / decisions:**  
 Used optional metadata so the original hackathon API contract remains compatible while allowing a richer frontend experience.
+
+## Session 9C - Final UI freeze before submission
+
+**Goal:**  
+Lock the frontend into a polished, submission-ready state without introducing risky late-stage changes.
+
+**Prompt given to AI:**  
+Review the polished UI direction, apply only safe micro-improvements, and then freeze the interface for final submission.
+
+**AI response summary:**  
+The AI recommended:
+- preserving the polished premium dark UI direction
+- avoiding further structural redesign
+- applying only low-risk refinements such as:
+  - better metric layout density
+  - clearer chat role labels
+  - slightly improved chat readability
+  - softer recommendation wording
+  - improved interview microcopy
+- freezing the UI afterward to reduce regression risk before submission
+
+**Implementation outcome:**  
+Finalized the polished UI across the home page, interview workspace, and report page. The interface now reflects the premium visual direction chosen for the hackathon demo and has been frozen for final submission stability.
+
+**Files changed:**  
+- Frontend/app/globals.css
+- Frontend/app/interview/page.tsx
+- Frontend/app/report/page.tsx
+
+**Notes / decisions:**  
+Chose stability over further experimentation. From this point onward, only final QA and submission actions should be performed unless a critical bug appears.
