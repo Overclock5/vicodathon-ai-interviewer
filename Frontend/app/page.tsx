@@ -61,7 +61,7 @@ export default function HomePage() {
         padding: isMobile ? "20px 14px" : "32px 20px",
       }}
     >
-      <div style={{ maxWidth: 1150, margin: "0 auto" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <p
           style={{
             color: "#67e8f9",
@@ -80,6 +80,7 @@ export default function HomePage() {
             marginTop: 16,
             marginBottom: 12,
             lineHeight: 1.1,
+            letterSpacing: "-0.03em",
           }}
         >
           Adaptive AI Interview Agent
@@ -104,6 +105,7 @@ export default function HomePage() {
             gap: 20,
             gridTemplateColumns: isDesktop ? "1.2fr 1fr" : "1fr",
             marginTop: 32,
+            alignItems: "start",
           }}
         >
           <section
@@ -144,7 +146,15 @@ export default function HomePage() {
             )}
 
             {!loading && !error && (
-              <div style={{ display: "grid", gap: 12 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gap: 12,
+                  maxHeight: isDesktop ? 760 : "none",
+                  overflowY: isDesktop ? "auto" : "visible",
+                  paddingRight: isDesktop ? 6 : 0,
+                }}
+              >
                 {candidates.map((candidate) => {
                   const isSelected = candidate.member.id === selectedId;
                   return (
@@ -162,6 +172,7 @@ export default function HomePage() {
                         borderRadius: 14,
                         padding: 16,
                         cursor: "pointer",
+                        transition: "all 0.2s ease",
                       }}
                     >
                       <div
@@ -208,86 +219,185 @@ export default function HomePage() {
             )}
           </section>
 
-          <section
+          <div
             style={{
-              background: "#111111",
-              border: "1px solid #27272a",
-              borderRadius: 18,
-              padding: isMobile ? 18 : 24,
+              display: "grid",
+              gap: 20,
+              position: isDesktop ? "sticky" : "static",
+              top: isDesktop ? 24 : "auto",
+              alignSelf: "start",
             }}
           >
-            <h2
+            <section
               style={{
-                fontSize: isMobile ? 24 : 28,
-                marginBottom: 16,
+                background: "#111111",
+                border: "1px solid #27272a",
+                borderRadius: 18,
+                padding: isMobile ? 18 : 24,
               }}
             >
-              Interview Preview
-            </h2>
+              <h2
+                style={{
+                  fontSize: isMobile ? 24 : 28,
+                  marginBottom: 16,
+                }}
+              >
+                Interview Preview
+              </h2>
 
-            {selectedCandidate ? (
-              <>
-                <div style={{ marginBottom: 20 }}>
-                  <p style={{ margin: 0, color: "#a1a1aa" }}>Candidate</p>
-                  <h3
+              {selectedCandidate ? (
+                <>
+                  <div style={{ marginBottom: 20 }}>
+                    <p style={{ margin: 0, color: "#a1a1aa" }}>Candidate</p>
+                    <h3
+                      style={{
+                        marginTop: 8,
+                        marginBottom: 8,
+                        fontSize: isMobile ? 22 : 24,
+                      }}
+                    >
+                      {selectedCandidate.member.name}
+                    </h3>
+                    <p style={{ color: "#d4d4d8", margin: 0, lineHeight: 1.5 }}>
+                      {selectedCandidate.member.jobRole} •{" "}
+                      {selectedCandidate.member.education}
+                    </p>
+                  </div>
+
+                  <div
                     style={{
-                      marginTop: 8,
-                      marginBottom: 8,
-                      fontSize: isMobile ? 22 : 24,
+                      display: "grid",
+                      gap: 12,
+                      marginBottom: 20,
                     }}
                   >
-                    {selectedCandidate.member.name}
-                  </h3>
-                  <p style={{ color: "#d4d4d8", margin: 0, lineHeight: 1.5 }}>
-                    {selectedCandidate.member.jobRole} •{" "}
-                    {selectedCandidate.member.education}
-                  </p>
-                </div>
+                    <MetricCard
+                      label="Missions Completed"
+                      value={selectedCandidate.signals.missionsCompleted}
+                    />
+                    <MetricCard
+                      label="Commit Days"
+                      value={selectedCandidate.signals.commitDays}
+                    />
+                    <MetricCard
+                      label="First-Try Missions"
+                      value={selectedCandidate.signals.missionsFirstTry}
+                    />
+                  </div>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gap: 12,
-                    marginBottom: 20,
-                  }}
-                >
-                  <MetricCard
-                    label="Missions Completed"
-                    value={selectedCandidate.signals.missionsCompleted}
-                  />
-                  <MetricCard
-                    label="Commit Days"
-                    value={selectedCandidate.signals.commitDays}
-                  />
-                  <MetricCard
-                    label="First-Try Missions"
-                    value={selectedCandidate.signals.missionsFirstTry}
-                  />
-                </div>
+                  <button
+                    onClick={startInterviewFlow}
+                    style={{
+                      width: "100%",
+                      background: "#0891b2",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 12,
+                      padding: "14px 18px",
+                      fontWeight: 700,
+                      fontSize: 16,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Start Interview
+                  </button>
+                </>
+              ) : (
+                <p style={{ color: "#a1a1aa" }}>
+                  Select a candidate to begin.
+                </p>
+              )}
+            </section>
 
-                <button
-                  onClick={startInterviewFlow}
-                  style={{
-                    width: "100%",
-                    background: "#0891b2",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 12,
-                    padding: "14px 18px",
-                    fontWeight: 700,
-                    fontSize: 16,
-                    cursor: "pointer",
-                  }}
-                >
-                  Start Interview
-                </button>
-              </>
-            ) : (
-              <p style={{ color: "#a1a1aa" }}>
-                Select a candidate to begin.
+            <section
+              style={{
+                background: "#111111",
+                border: "1px solid #27272a",
+                borderRadius: 18,
+                padding: isMobile ? 18 : 22,
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  color: "#67e8f9",
+                  fontSize: 12,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.12em",
+                }}
+              >
+                How the Agent Thinks
               </p>
-            )}
-          </section>
+
+              <div style={{ display: "grid", gap: 12, marginTop: 14 }}>
+                <ThinkingStep
+                  number="01"
+                  title="Reads candidate journey"
+                  text="Uses completed, skipped, and retry-heavy missions."
+                />
+                <ThinkingStep
+                  number="02"
+                  title="Plans adaptive questions"
+                  text="Chooses topics across multiple curriculum days."
+                />
+                <ThinkingStep
+                  number="03"
+                  title="Generates follow-ups"
+                  text="Changes depth based on the previous answer quality."
+                />
+                <ThinkingStep
+                  number="04"
+                  title="Builds final recommendation"
+                  text="Summarizes strengths, gaps, next steps, and readiness."
+                />
+              </div>
+            </section>
+
+            <section
+              style={{
+                background: "#111111",
+                border: "1px solid #27272a",
+                borderRadius: 18,
+                padding: isMobile ? 18 : 22,
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  color: "#67e8f9",
+                  fontSize: 12,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.12em",
+                }}
+              >
+                Evaluation Dimensions
+              </p>
+
+              <div
+                style={{
+                  display: "grid",
+                  gap: 12,
+                  marginTop: 16,
+                }}
+              >
+                <MiniDimension
+                  title="Technical"
+                  text="How correctly the candidate explains systems, tools, and concepts."
+                  color="#93c5fd"
+                />
+                <MiniDimension
+                  title="Communication"
+                  text="How clearly the candidate structures and delivers answers."
+                  color="#86efac"
+                />
+                <MiniDimension
+                  title="Reasoning"
+                  text="How well the candidate discusses trade-offs, design choices, and risk."
+                  color="#fde68a"
+                />
+              </div>
+            </section>
+          </div>
         </div>
 
         <div
@@ -332,6 +442,77 @@ function MetricCard({ label, value }: { label: string; value: number }) {
     >
       <div style={{ color: "#a1a1aa", fontSize: 13 }}>{label}</div>
       <div style={{ fontSize: 24, fontWeight: 800, marginTop: 6 }}>{value}</div>
+    </div>
+  );
+}
+
+function ThinkingStep({
+  number,
+  title,
+  text,
+}: {
+  number: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "46px 1fr",
+        gap: 12,
+        alignItems: "start",
+      }}
+    >
+      <div
+        style={{
+          width: 46,
+          height: 46,
+          borderRadius: 12,
+          background: "#0f172a",
+          border: "1px solid #1d4ed8",
+          color: "#93c5fd",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontWeight: 800,
+          fontSize: 12,
+        }}
+      >
+        {number}
+      </div>
+      <div>
+        <div style={{ fontWeight: 700, marginBottom: 4 }}>{title}</div>
+        <div style={{ color: "#d4d4d8", lineHeight: 1.5, fontSize: 14 }}>
+          {text}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MiniDimension({
+  title,
+  text,
+  color,
+}: {
+  title: string;
+  text: string;
+  color: string;
+}) {
+  return (
+    <div
+      style={{
+        background: "#18181b",
+        border: "1px solid #27272a",
+        borderRadius: 14,
+        padding: 14,
+      }}
+    >
+      <div style={{ fontWeight: 700, color }}>{title}</div>
+      <div style={{ color: "#d4d4d8", marginTop: 6, lineHeight: 1.5, fontSize: 14 }}>
+        {text}
+      </div>
     </div>
   );
 }
